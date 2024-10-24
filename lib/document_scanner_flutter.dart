@@ -40,7 +40,8 @@ class DocumentScannerFlutter {
       {ScannerFileSource? source,
       Map<dynamic, String> labelsConfig = const {},
       required Color addImageButtonColor,
-      required Color doneButtonColor, List<File> files = const []}) async {
+      required Color doneButtonColor,
+      List<File> files = const []}) async {
     Future<File?>? launchWrapper() {
       return launch(context, labelsConfig: labelsConfig, source: source);
     }
@@ -68,32 +69,34 @@ class DocumentScannerFlutter {
         isDismissible: true,
         builder: (BuildContext bc) {
           return Container(
-            child: new Wrap(
-              children: <Widget>[
-                new ListTile(
-                    leading: new Icon(Icons.camera_alt),
-                    title: new Text(
-                        labelsConfig[ScannerLabelsConfig.PICKER_CAMERA_LABEL] ??
-                            'Camera'),
+            child: SafeArea(
+              child: new Wrap(
+                children: <Widget>[
+                  new ListTile(
+                      leading: new Icon(Icons.camera_alt),
+                      title: new Text(labelsConfig[
+                              ScannerLabelsConfig.PICKER_CAMERA_LABEL] ??
+                          'Camera'),
+                      onTap: () async {
+                        Navigator.pop(
+                            context,
+                            await _scanDocument(
+                                ScannerFileSource.CAMERA, labelsConfig));
+                      }),
+                  new ListTile(
+                    leading: new Icon(Icons.image_search),
+                    title: new Text(labelsConfig[
+                            ScannerLabelsConfig.PICKER_GALLERY_LABEL] ??
+                        'Photo Library'),
                     onTap: () async {
                       Navigator.pop(
                           context,
                           await _scanDocument(
-                              ScannerFileSource.CAMERA, labelsConfig));
-                    }),
-                new ListTile(
-                  leading: new Icon(Icons.image_search),
-                  title: new Text(
-                      labelsConfig[ScannerLabelsConfig.PICKER_GALLERY_LABEL] ??
-                          'Photo Library'),
-                  onTap: () async {
-                    Navigator.pop(
-                        context,
-                        await _scanDocument(
-                            ScannerFileSource.GALLERY, labelsConfig));
-                  },
-                ),
-              ],
+                              ScannerFileSource.GALLERY, labelsConfig));
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         });

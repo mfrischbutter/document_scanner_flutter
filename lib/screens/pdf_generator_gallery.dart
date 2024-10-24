@@ -1,9 +1,11 @@
 import 'dart:io';
+
 import 'package:document_scanner_flutter/configs/configs.dart';
 import 'package:document_scanner_flutter/screens/photo_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 /// @nodoc
 typedef Future<File?>? ScannerFilePicker();
@@ -16,26 +18,41 @@ class PdfGeneratotGallery extends StatefulWidget {
   final Color doneButtonColor;
   final List<File> files;
 
-  const PdfGeneratotGallery(this.filePicker, this.labelsConfig, this.addImageButtonColor, this.doneButtonColor, this.files,);
+  const PdfGeneratotGallery(
+    this.filePicker,
+    this.labelsConfig,
+    this.addImageButtonColor,
+    this.doneButtonColor,
+    this.files,
+  );
 
   @override
   _PdfGeneratotGalleryState createState() => _PdfGeneratotGalleryState();
 }
 
 class _PdfGeneratotGalleryState extends State<PdfGeneratotGallery> {
-  List<File> files = [];
+  late List<File> files;
 
   @override
   void initState() {
     super.initState();
-    files = widget.files;
+    // Create a new modifiable list from the widget's files
+    files = List<File>.from(widget.files);
   }
 
   addImage() async {
     var file = await widget.filePicker();
-    if (file != null) {
+    if (file == null) return;
+
+    var compressedFile = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      file.path.replaceFirst('.', '_compressed.'),
+      quality: 80,
+    );
+
+    if (compressedFile != null) {
       setState(() {
-        files.add(file);
+        files.add(File(compressedFile.path));
       });
     }
   }
